@@ -1,0 +1,464 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Mathematica 11.2' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       158,          7]
+NotebookDataLength[     16839,        456]
+NotebookOptionsPosition[     15374,        428]
+NotebookOutlinePosition[     15732,        444]
+CellTagsIndexPosition[     15689,        441]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+
+Cell[CellGroupData[{
+Cell["Code which creates ACF table", "Section",
+ CellChangeTimes->{{3.743009021265139*^9, 
+  3.743009047136937*^9}},ExpressionUUID->"6a45db92-3c10-44bd-a00f-\
+dc50de045124"],
+
+Cell["\<\
+Check that the numerical integration is working and check what is timing for \
+that calculation
+This is the simplest calculation for damped random walk (slope \
+\[Alpha]High=2), with decorrelation times  of tau=100\
+\>", "Text",
+ CellChangeTimes->{{3.743009800143364*^9, 3.7430098154442987`*^9}, {
+  3.743009870516404*^9, 
+  3.743009896201758*^9}},ExpressionUUID->"c35e666d-15a9-4de2-b74b-\
+2911ce36342e"],
+
+Cell[BoxData[
+ RowBox[{"\[IndentingNewLine]", 
+  RowBox[{
+   RowBox[{
+    RowBox[{"\[Omega]Bend", "=", 
+     RowBox[{"1", "/", 
+      RowBox[{"(", 
+       RowBox[{"100", "*", "2", "\[Pi]"}], ")"}]}]}], ";", 
+    RowBox[{"\[Alpha]High", "=", "2"}], ";"}], "\[IndentingNewLine]", 
+   RowBox[{"AbsoluteTiming", "[", 
+    RowBox[{
+     RowBox[{"SfSquaredSlopeNumericalIntegration", "=", 
+      RowBox[{"ParallelTable", "[", 
+       RowBox[{
+        RowBox[{"{", 
+         RowBox[{"\[Tau]", ",", 
+          RowBox[{"NIntegrate", "[", 
+           RowBox[{
+            RowBox[{
+             RowBox[{"(", 
+              RowBox[{"1", "-", 
+               RowBox[{"Cos", "[", 
+                RowBox[{"2", "\[Pi]", "*", "\[Omega]", "*", "\[Tau]"}], 
+                "]"}]}], ")"}], 
+             FractionBox["1", 
+              RowBox[{"1", "+", 
+               SuperscriptBox[
+                RowBox[{"(", 
+                 RowBox[{"\[Omega]", "/", "\[Omega]Bend"}], ")"}], 
+                "\[Alpha]High"]}]]}], ",", 
+            RowBox[{"{", 
+             RowBox[{"\[Omega]", ",", "0", ",", "\[Infinity]"}], "}"}]}], 
+           "]"}]}], "}"}], ",", 
+        RowBox[{"{", 
+         RowBox[{"\[Tau]", ",", "1", ",", "MaxTime", ",", "1"}], "}"}]}], 
+       "]"}]}], ";"}], "]"}]}]}]], "Input",
+ CellChangeTimes->{{3.74300912139069*^9, 3.74300914534881*^9}, 
+   3.7430098036873407`*^9},ExpressionUUID->"047f77c2-23bb-4bba-8db7-\
+aa1fdce3cae2"],
+
+Cell["\<\
+Specify below the parameters for your ACF table
+1. MaxTime -> Maximal time up to which we will calculate ACF
+2. TimeSteps -> Grid of time values, which will be [1,2,3,4,5,6,7,8,9] and \
+then logarithmically with 0.1 dex spread up to MaxTime
+3. TauTimes -> Grid of tau values, where tau is decorrelation times, which \
+will be [1,2,3,4,5,6,7,8,9] and up to 200, by units of 10
+4. AlphaSlopes -> Grid of slopes  between 1.1 and 2.9\
+\>", "Text",
+ CellChangeTimes->{{3.743009207676084*^9, 3.743009218292075*^9}, {
+  3.74300930860223*^9, 3.7430094278430643`*^9}, {3.7430094913772783`*^9, 
+  3.743009585298397*^9}, {3.7430097457221212`*^9, 
+  3.743009783639715*^9}},ExpressionUUID->"c4a94efb-e98a-497d-9ff4-\
+f08a760f0832"],
+
+Cell[BoxData[
+ RowBox[{"\[IndentingNewLine]", 
+  RowBox[{
+   RowBox[{
+    RowBox[{"MaxTime", "=", "1000"}], ";"}], "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"TimeSteps", "=", 
+     RowBox[{"Join", "[", 
+      RowBox[{
+       RowBox[{"Range", "[", "9", "]"}], ",", 
+       RowBox[{"Table", "[", 
+        RowBox[{
+         RowBox[{"Round", "[", 
+          SuperscriptBox["10", "l"], "]"}], ",", 
+         RowBox[{"{", 
+          RowBox[{"l", ",", "1", ",", 
+           RowBox[{"Floor", "[", 
+            RowBox[{
+             RowBox[{"N", "[", 
+              RowBox[{"Log10", "[", "MaxTime", "]"}], "]"}], ",", "0.1"}], 
+            "]"}], ",", "0.1"}], "}"}]}], "]"}]}], "]"}]}], ";"}], 
+   "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"TauTimes", "=", 
+     RowBox[{"Join", "[", 
+      RowBox[{
+       RowBox[{"Flatten", "[", 
+        RowBox[{"Table", "[", 
+         RowBox[{
+          RowBox[{"{", 
+           RowBox[{"1", "/", 
+            RowBox[{"(", 
+             RowBox[{"i", "*", "2", "\[Pi]"}], ")"}]}], "}"}], ",", 
+          RowBox[{"{", 
+           RowBox[{"i", ",", "1", ",", "9"}], "}"}]}], "]"}], "]"}], ",", 
+       RowBox[{"Flatten", "[", 
+        RowBox[{"Table", "[", 
+         RowBox[{
+          RowBox[{"{", 
+           RowBox[{"1", "/", 
+            RowBox[{"(", 
+             RowBox[{"i", "*", "2", "\[Pi]"}], ")"}]}], "}"}], ",", 
+          RowBox[{"{", 
+           RowBox[{"i", ",", "10", ",", "200", ",", "10"}], "}"}]}], "]"}], 
+        "]"}]}], "]"}]}], ";"}], "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"AlphaSlopes", "=", 
+     RowBox[{"Table", "[", 
+      RowBox[{"i", ",", 
+       RowBox[{"{", 
+        RowBox[{"i", ",", "1.1", ",", "2.9", ",", "0.1"}], "}"}]}], "]"}]}], 
+    ";"}]}]}]], "Input",
+ CellChangeTimes->{{3.7430091718778257`*^9, 3.743009191884954*^9}, {
+  3.743009905820718*^9, 
+  3.743009906587522*^9}},ExpressionUUID->"10301dbd-186b-4a41-8b96-\
+6d4f15b2b233"],
+
+Cell["\<\
+Turn off warnings for numerical integration which happens when integrations \
+slowly converges \
+\>", "Text",
+ CellChangeTimes->{{3.743009928610178*^9, 3.7430099433053913`*^9}, {
+  3.743010222724365*^9, 
+  3.7430102419386673`*^9}},ExpressionUUID->"208fe86f-da20-4d77-b363-\
+ed18d0b1b546"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"Off", "[", 
+   StyleBox[
+    RowBox[{"NIntegrate", "::", "ncvb"}], "MessageName"], "]"}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"ParallelEvaluate", "[", 
+   RowBox[{"Off", "[", 
+    StyleBox[
+     RowBox[{"NIntegrate", "::", "ncvb"}], "MessageName"], "]"}], "]"}], 
+  ";"}]}], "Input",
+ CellChangeTimes->{3.7430090535089684`*^9, 
+  3.743009913175276*^9},ExpressionUUID->"b4e659d4-16d9-4720-b9fb-\
+a1286c93d03f"],
+
+Cell["Create the table here. Runs around 1 hours on my laptop.", "Text",
+ CellChangeTimes->{{3.7430102537160187`*^9, 
+  3.7430102675382347`*^9}},ExpressionUUID->"0d88b574-1b5d-4175-ba21-\
+03410e62321a"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"AbsoluteTiming", "[", 
+   RowBox[{"Monitor", "[", 
+    RowBox[{
+     RowBox[{"ACFTable", "=", 
+      RowBox[{"Table", "[", 
+       RowBox[{
+        RowBox[{
+         RowBox[{"SfSquaredSlopeNumericalIntegration", "=", 
+          RowBox[{"ParallelTable", "[", 
+           RowBox[{
+            RowBox[{"{", 
+             RowBox[{"\[Tau]", ",", 
+              RowBox[{"NIntegrate", "[", 
+               RowBox[{
+                RowBox[{
+                 RowBox[{"(", 
+                  RowBox[{"1", "-", 
+                   RowBox[{"Cos", "[", 
+                    RowBox[{"2", "\[Pi]", "*", "\[Omega]", "*", "\[Tau]"}], 
+                    "]"}]}], ")"}], 
+                 FractionBox["1", 
+                  RowBox[{"1", "+", 
+                   SuperscriptBox[
+                    RowBox[{"(", 
+                    RowBox[{"\[Omega]", "/", 
+                    RowBox[{"(", "\[Omega]Bend", ")"}]}], ")"}], 
+                    "\[Alpha]High"]}]]}], ",", 
+                RowBox[{"{", 
+                 RowBox[{"\[Omega]", ",", "0", ",", "\[Infinity]"}], "}"}]}], 
+               "]"}]}], "}"}], ",", 
+            RowBox[{"{", 
+             RowBox[{"\[Tau]", ",", "1", ",", "MaxTime", ",", "1"}], "}"}]}], 
+           "]"}]}], ";", 
+         RowBox[{"SfSquaredSlopeNumericalIntegrationNumericalInf", "=", 
+          RowBox[{"Mean", "[", 
+           RowBox[{
+            RowBox[{"SfSquaredSlopeNumericalIntegration", "[", 
+             RowBox[{"[", 
+              RowBox[{
+               RowBox[{
+                RowBox[{
+                "Length", "[", "SfSquaredSlopeNumericalIntegration", "]"}], 
+                "-", "5"}], ";;", 
+               RowBox[{
+               "Length", "[", "SfSquaredSlopeNumericalIntegration", "]"}]}], 
+              "]"}], "]"}], "[", 
+            RowBox[{"[", 
+             RowBox[{"All", " ", ",", "2"}], "]"}], "]"}], "]"}]}], ";", 
+         "\[IndentingNewLine]", 
+         RowBox[{"{", 
+          RowBox[{"\[Omega]Bend", ",", "\[Alpha]High", ",", 
+           RowBox[{"ACFdataSlopeNumericalIntegralVersion", "=", 
+            RowBox[{
+             RowBox[{"{", 
+              RowBox[{
+               RowBox[{"SfSquaredSlopeNumericalIntegration", "[", 
+                RowBox[{"[", 
+                 RowBox[{"All", ",", "1"}], "]"}], "]"}], ",", 
+               RowBox[{"1", "-", 
+                SuperscriptBox[
+                 RowBox[{"(", 
+                  RowBox[{
+                   RowBox[{"SfSquaredSlopeNumericalIntegration", "[", 
+                    RowBox[{"[", 
+                    RowBox[{"All", ",", "2"}], "]"}], "]"}], "/", 
+                   "SfSquaredSlopeNumericalIntegrationNumericalInf"}], ")"}], 
+                 "1"]}]}], "}"}], "//", "Transpose"}]}]}], "}"}]}], ",", 
+        RowBox[{"{", 
+         RowBox[{"\[Omega]Bend", ",", "TauTimes"}], "}"}], ",", 
+        RowBox[{"{", 
+         RowBox[{"\[Alpha]High", ",", "AlphaSlopes"}], "}"}]}], "]"}]}], ",", 
+     
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"1", "/", 
+        RowBox[{"(", 
+         RowBox[{"\[Omega]Bend", "*", 
+          RowBox[{"(", 
+           RowBox[{"2", "*", "\[Pi]"}], ")"}]}], ")"}]}], ",", 
+       "\[Alpha]High"}], "}"}]}], "]"}], "]"}], ";"}]], "Input",
+ CellChangeTimes->{3.743009170647498*^9, 
+  3.74300991951797*^9},ExpressionUUID->"b113da5f-0634-4227-8726-a787c2f6c573"],
+
+Cell["Add also slope 0 (pure white noise) to the table", "Text",
+ CellChangeTimes->{{3.743010308770656*^9, 
+  3.743010323888113*^9}},ExpressionUUID->"1c9a9da8-a165-4c26-b0d1-\
+d88de2a2a389"],
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"ACFTableExpanded", "=", 
+   RowBox[{"Table", "[", 
+    RowBox[{
+     RowBox[{
+      RowBox[{"{", 
+       RowBox[{
+        RowBox[{"ConstantArray", "[", 
+         RowBox[{
+          RowBox[{
+           RowBox[{"(", 
+            RowBox[{"1", "/", 
+             RowBox[{
+              RowBox[{"ACFTable", "[", 
+               RowBox[{"[", 
+                RowBox[{"windex", ",", "alphaindex"}], "]"}], "]"}], "[", 
+              RowBox[{"[", "1", "]"}], "]"}]}], ")"}], "/", 
+           RowBox[{"(", 
+            RowBox[{"2", "\[Pi]"}], ")"}]}], ",", 
+          RowBox[{"Length", "[", 
+           RowBox[{
+            RowBox[{"ACFTable", "[", 
+             RowBox[{"[", 
+              RowBox[{"windex", ",", "alphaindex"}], "]"}], "]"}], "[", 
+            RowBox[{"[", "3", "]"}], "]"}], "]"}]}], "]"}], ",", 
+        RowBox[{"Round", "[", 
+         RowBox[{
+          RowBox[{"ConstantArray", "[", 
+           RowBox[{
+            RowBox[{
+             RowBox[{"ACFTable", "[", 
+              RowBox[{"[", 
+               RowBox[{"windex", ",", "alphaindex"}], "]"}], "]"}], "[", 
+             RowBox[{"[", "2", "]"}], "]"}], ",", 
+            RowBox[{"Length", "[", 
+             RowBox[{
+              RowBox[{"ACFTable", "[", 
+               RowBox[{"[", 
+                RowBox[{"windex", ",", "alphaindex"}], "]"}], "]"}], "[", 
+              RowBox[{"[", "3", "]"}], "]"}], "]"}]}], "]"}], ",", "0.1"}], 
+         "]"}], ",", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"ACFTable", "[", 
+           RowBox[{"[", 
+            RowBox[{"windex", ",", "alphaindex"}], "]"}], "]"}], "[", 
+          RowBox[{"[", "3", "]"}], "]"}], "[", 
+         RowBox[{"[", 
+          RowBox[{"All", ",", "1"}], "]"}], "]"}], ",", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"ACFTable", "[", 
+           RowBox[{"[", 
+            RowBox[{"windex", ",", "alphaindex"}], "]"}], "]"}], "[", 
+          RowBox[{"[", "3", "]"}], "]"}], "[", 
+         RowBox[{"[", 
+          RowBox[{"All", ",", "2"}], "]"}], "]"}]}], "}"}], "//", 
+      "Transpose"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"windex", ",", "1", ",", 
+       RowBox[{
+        RowBox[{"Dimensions", "[", "ACFTable", "]"}], "[", 
+        RowBox[{"[", "1", "]"}], "]"}]}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"alphaindex", ",", 
+       RowBox[{
+        RowBox[{"Dimensions", "[", "ACFTable", "]"}], "[", 
+        RowBox[{"[", "2", "]"}], "]"}]}], "}"}]}], "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"ACFTableZeroExpanded", "=", 
+   RowBox[{"Table", "[", 
+    RowBox[{
+     RowBox[{
+      RowBox[{"{", 
+       RowBox[{
+        RowBox[{"ConstantArray", "[", 
+         RowBox[{
+          RowBox[{
+           RowBox[{"(", 
+            RowBox[{"1", "/", 
+             RowBox[{
+              RowBox[{"ACFTable", "[", 
+               RowBox[{"[", 
+                RowBox[{"windex", ",", "alphaindex"}], "]"}], "]"}], "[", 
+              RowBox[{"[", "1", "]"}], "]"}]}], ")"}], "/", 
+           RowBox[{"(", 
+            RowBox[{"2", "\[Pi]"}], ")"}]}], ",", 
+          RowBox[{"Length", "[", 
+           RowBox[{
+            RowBox[{"ACFTable", "[", 
+             RowBox[{"[", 
+              RowBox[{"windex", ",", "alphaindex"}], "]"}], "]"}], "[", 
+            RowBox[{"[", "3", "]"}], "]"}], "]"}]}], "]"}], ",", 
+        RowBox[{"ConstantArray", "[", 
+         RowBox[{"0", ",", 
+          RowBox[{"Length", "[", 
+           RowBox[{
+            RowBox[{"ACFTable", "[", 
+             RowBox[{"[", 
+              RowBox[{"windex", ",", "1"}], "]"}], "]"}], "[", 
+            RowBox[{"[", "3", "]"}], "]"}], "]"}]}], "]"}], ",", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"ACFTable", "[", 
+           RowBox[{"[", 
+            RowBox[{"windex", ",", "alphaindex"}], "]"}], "]"}], "[", 
+          RowBox[{"[", "3", "]"}], "]"}], "[", 
+         RowBox[{"[", 
+          RowBox[{"All", ",", "1"}], "]"}], "]"}], ",", 
+        RowBox[{"ConstantArray", "[", 
+         RowBox[{"0", ",", 
+          RowBox[{"Length", "[", 
+           RowBox[{
+            RowBox[{"ACFTable", "[", 
+             RowBox[{"[", 
+              RowBox[{"windex", ",", "1"}], "]"}], "]"}], "[", 
+            RowBox[{"[", "3", "]"}], "]"}], "]"}]}], "]"}]}], "}"}], "//", 
+      "Transpose"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"windex", ",", "1", ",", 
+       RowBox[{
+        RowBox[{"Dimensions", "[", "ACFTable", "]"}], "[", 
+        RowBox[{"[", "1", "]"}], "]"}]}], "}"}], ",", 
+     RowBox[{"{", 
+      RowBox[{"alphaindex", ",", "1"}], "}"}]}], "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"ACFTableFlatten", "=", 
+   RowBox[{"Partition", "[", 
+    RowBox[{
+     RowBox[{"Flatten", "[", 
+      RowBox[{"Join", "[", 
+       RowBox[{"ACFTableZeroExpanded", ",", "ACFTableExpanded", ",", "2"}], 
+       "]"}], "]"}], ",", "4"}], "]"}]}], ";"}]}], "Input",
+ CellChangeTimes->{{3.743010288356032*^9, 
+  3.743010295010395*^9}},ExpressionUUID->"0cdff7f0-86c8-45e5-beb2-\
+0503d218db7d"],
+
+Cell["\<\
+Export the final table in cvs form; Change export directory as desired\
+\>", "Text",
+ CellChangeTimes->{{3.743010334906313*^9, 
+  3.743010385639599*^9}},ExpressionUUID->"be671bc1-61eb-4103-a6f9-\
+64956d302572"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"Export", "[", 
+   RowBox[{
+   "\"\</Users/nevencaplar/Documents/Variability/MainSequence/Github/\
+ACFTableFlatten.csv\>\"", ",", "ACFTableFlatten"}], "]"}], ";"}]], "Input",
+ CellChangeTimes->{{3.743010344138751*^9, 
+  3.743010361184554*^9}},ExpressionUUID->"0c69ba79-82bf-4b54-b878-\
+cdfe8fe87149"]
+}, Open  ]]
+},
+WindowSize->{1704, 911},
+WindowMargins->{{Automatic, 0}, {3, Automatic}},
+FrontEndVersion->"11.2 for Mac OS X x86 (32-bit, 64-bit Kernel) (September \
+10, 2017)",
+StyleDefinitions->"Default.nb"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[CellGroupData[{
+Cell[580, 22, 173, 3, 67, "Section",ExpressionUUID->"6a45db92-3c10-44bd-a00f-dc50de045124"],
+Cell[756, 27, 415, 9, 58, "Text",ExpressionUUID->"c35e666d-15a9-4de2-b74b-2911ce36342e"],
+Cell[1174, 38, 1433, 38, 95, "Input",ExpressionUUID->"047f77c2-23bb-4bba-8db7-aa1fdce3cae2"],
+Cell[2610, 78, 728, 13, 127, "Text",ExpressionUUID->"c4a94efb-e98a-497d-9ff4-f08a760f0832"],
+Cell[3341, 93, 1919, 55, 117, "Input",ExpressionUUID->"10301dbd-186b-4a41-8b96-6d4f15b2b233"],
+Cell[5263, 150, 298, 7, 35, "Text",ExpressionUUID->"208fe86f-da20-4d77-b363-ed18d0b1b546"],
+Cell[5564, 159, 463, 14, 52, "Input",ExpressionUUID->"b4e659d4-16d9-4720-b9fb-a1286c93d03f"],
+Cell[6030, 175, 202, 3, 35, "Text",ExpressionUUID->"0d88b574-1b5d-4175-ba21-03410e62321a"],
+Cell[6235, 180, 3355, 83, 126, "Input",ExpressionUUID->"b113da5f-0634-4227-8726-a787c2f6c573"],
+Cell[9593, 265, 190, 3, 35, "Text",ExpressionUUID->"1c9a9da8-a165-4c26-b0d1-d88de2a2a389"],
+Cell[9786, 270, 5012, 138, 178, "Input",ExpressionUUID->"0cdff7f0-86c8-45e5-beb2-0503d218db7d"],
+Cell[14801, 410, 220, 5, 35, "Text",ExpressionUUID->"be671bc1-61eb-4103-a6f9-64956d302572"],
+Cell[15024, 417, 334, 8, 30, "Input",ExpressionUUID->"0c69ba79-82bf-4b54-b878-cdfe8fe87149"]
+}, Open  ]]
+}
+]
+*)
+
