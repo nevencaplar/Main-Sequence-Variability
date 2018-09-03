@@ -1,0 +1,166 @@
+#!/usr/bin/env python2
+# -*- coding: utf-8 -*-
+"""
+Created on Mon Sep  3 15:44:00 2018
+
+@author: ncaplar@princeton.edu
+"""
+from __future__ import division
+import numpy as np
+import pandas as pd
+import io
+from tqdm import tqdm
+from scipy import interpolate
+
+
+ACFData=np.loadtxt(open('./ACFTableFlatten.csv', "rb"), delimiter=",", skiprows=0)
+ACFData[:,1]=np.round(ACFData[:,1],2)
+
+
+tau=np.unique(ACFData[:,0])
+slope=np.unique(ACFData[:,1])
+time=np.unique(ACFData[:,2])
+ACF=ACFData[:,3]
+print('These auto-correlation function have been computed numerically in Wolfram Mathematica (notebook also avaliable in the Github folder) for PSD=1/(1+(f/f_bend)^(slope)),where tau=1/f_bend and f is frequency.')
+print('They are tabulated as function of tau (decorrelation time), slope(high frequency slope of the PSD) and time.')
+print('avaliable tau (in units of \' time units (t.u.)\')are: '+str(tau))
+print('avaliable slopes are: '+str(slope))
+print('largest avaliable time is [t.u.]: '+str(max(time)))
+
+# constructing multi-index panda dataframe (series)
+mi = pd.MultiIndex.from_product([tau, slope, time], names=['tau', 'slope', 'time'])
+
+#connect multiindex to data and save as multindexed series
+sr_multi = pd.Series(index=mi, data=ACF.flatten())
+
+
+def get_ACF(tau,slope):
+    """!gives autocorrelation function as a 2d numpy array [time, ACF]
+
+    @param[in] tau          Decorrelation time
+    @param[in] slope        high frequency slope of the PSD
+
+
+
+    """
+    
+    #pull out a dataframe with tau = 100 time units (see all options above)
+    select_tau=sr_multi.xs(tau, level='tau').unstack(level=0)
+    #pull out a dataframe with slope = 2
+    select_tau_and_slope=select_tau[slope]
+    
+    res=[]
+    for j in range(1,len(select_tau_and_slope.values)):
+        res.append([j,select_tau_and_slope.values[j]])
+    
+    res=np.array(res)
+    return res
+
+def get_scatter_MS(tau,slope,tMax=None,t_avg=None):
+    """!gives size of scatter as a 2d numpy array [time, scatter]
+
+    @param[in] tau          Decorellation time
+    @param[in] slope        high frequency slope of the PSD
+    @param[in] tmax         what is the largest time that you want to consider (see 'largest avaliable time is' above);
+
+
+    """
+    if tMax is None:
+        tMax=int(max(time))
+    
+    ACF=get_ACF(tau,slope)
+    
+    res=[]
+    for t in range(1,tMax):
+        res.append([t,(1+2*np.sum(((1-np.array(range(1,t+1))/t))*ACF[:,1][:t]))**(1/2)*(1/(t**(1/2)))])
+        
+    res=np.array(res)
+    if t_avg is None:
+        return res
+    else:
+        assert t_avg<tMax
+        return res[int(t_avg-1)]  
+    
+def get_mean_relation(tau,slope,tMax=None):
+    """!gives ratio between mean SFR of a longer indicator and the SFR in a shorten indicator [time, ratio of two indicators ]
+        assumes nonchanging mean sequence!
+
+    @param[in] tau          Decorellation time
+    @param[in] slope        high frequency slope of the PSD
+    @param[in] tmax         what is the largest time that you want to consider (see 'largest avaliable time is' above);
+
+
+    """
+    if tMax is None:
+        tMax=int(max(time))
+    
+    ACF=get_ACF(tau,slope)
+    
+    res=[]
+    for t in range(1,tMax):
+        res.append([t,np.sum(ACF[:,1][:t])/(t)])
+
+    res=np.array(res)
+    return res
+
+def bootstrap_resample(X, n=None):
+    """ Bootstrap resample an array_like
+    Parameters
+    ----------
+    X : array_like
+      data to resample
+    n : int, optional
+      length of resampled array, equal to len(X) if n==None
+    Results
+    -------
+    returns X_resamples
+    """
+    if n == None:
+        n = len(X)
+        
+    resample_i = np.floor(np.random.rand(n)*len(X)).astype(int)
+    X_resample = X[resample_i]
+    return X_resample
+    
+def create_MS_scatter_at_given_t_interpolation(t_longer):
+
+    slope_1=slope[slope>1]
+    
+
+    MS_slope_at_given_t_longer=[]
+    for plot_slope in tqdm(slope_1):
+        for plot_tau in tau: 
+            MS_slope_at_given_t_longer.append([plot_tau,plot_slope,get_scatter_MS(plot_tau,plot_slope,None,t_longer)[1]])
+        
+    MS_slope_at_given_t_longer_1=np.array(MS_slope_at_given_t_longer)[:,2]      
+    MS_slope_at_given_t_longer_1=MS_slope_at_given_t_longer_1.reshape(19,29)
+        
+    MS_slope_at_given_t_longer_1_interpolation = interpolate.interp2d(tau, slope_1, MS_slope_at_given_t_longer_1, kind='cubic')  
+    return MS_slope_at_given_t_longer_1_interpolation
+
+def create_Number_of_sigmas(MS_slope_at_given_t_longer_1_interpolation,Measurment_Of_Scatter_Ratio,err_Measurment_Of_Scatter_Ratio):
+    
+    slope_fine=np.arange(1.1,2.9,0.01)
+    tau_fine=np.arange(1,200,0.1)
+    
+    Number_of_sigmas_deviation_1=[]
+    for plot_slope in tqdm(slope_fine):
+        for plot_tau in tau_fine: 
+            Number_of_sigmas_deviation_1.append(abs((MS_slope_at_given_t_longer_1_interpolation(plot_tau,plot_slope)-Measurment_Of_Scatter_Ratio)/err_Measurment_Of_Scatter_Ratio))
+            
+    Number_of_sigmas_deviation_1=np.array(Number_of_sigmas_deviation_1)
+    Number_of_sigmas_deviation_1=Number_of_sigmas_deviation_1.reshape(len(slope_fine),len(tau_fine))
+
+    Number_of_sigmas_deviation_reshaped_1=np.copy(Number_of_sigmas_deviation_1)
+    Number_of_sigmas_deviation_reshaped_1=Number_of_sigmas_deviation_reshaped_1.reshape(len(slope_fine),len(tau_fine))  
+    
+    best_solution_1=[]
+    for i in range(len(Number_of_sigmas_deviation_reshaped_1)):
+        best_solution_1.append([slope_fine[i],tau_fine[np.argmin(Number_of_sigmas_deviation_reshaped_1[i])],Number_of_sigmas_deviation_reshaped_1[i][np.argmin(Number_of_sigmas_deviation_reshaped_1[i])]])
+        
+    best_solution_1=np.array(best_solution_1)
+    best_solution_1=best_solution_1[best_solution_1[:,2]<0.1]
+    
+    return tau_fine,slope_fine,Number_of_sigmas_deviation_reshaped_1,best_solution_1
+    
+    
