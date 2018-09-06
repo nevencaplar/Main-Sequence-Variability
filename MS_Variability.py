@@ -138,6 +138,26 @@ def create_MS_scatter_at_given_t_interpolation(t_longer):
     MS_slope_at_given_t_longer_1_interpolation = interpolate.interp2d(tau, slope_1, MS_slope_at_given_t_longer_1, kind='cubic')  
     return MS_slope_at_given_t_longer_1_interpolation
 
+def create_offset_slope_at_given_t_interpolation(t_longer):
+
+    slope_1=slope[slope>1]
+    
+
+    offset_slope_at_given_t_longer=[]
+    for plot_slope in tqdm(slope_1):
+        for plot_tau in tau: 
+            if int(t_longer)==1:
+                offset_slope_at_given_t_longer.append([plot_tau,plot_slope,0])
+            else:
+                offset_slope_at_given_t_longer.append([plot_tau,plot_slope,get_mean_relation(plot_tau,plot_slope)[int(t_longer)-1][1]])
+        
+    offset_slope_at_given_t_longer_1=np.array(offset_slope_at_given_t_longer)[:,2]      
+    offset_slope_at_given_t_longer_1=offset_slope_at_given_t_longer_1.reshape(19,29)
+        
+    offset_slope_at_given_t_longer_1_interpolation = interpolate.interp2d(tau, slope_1, offset_slope_at_given_t_longer_1, kind='cubic')  
+    return offset_slope_at_given_t_longer_1_interpolation
+
+
 def create_Number_of_sigmas(MS_slope_at_given_t_longer_1_interpolation,Measurment_Of_Scatter_Ratio,err_Measurment_Of_Scatter_Ratio):
     
     slope_fine=np.arange(1.1,2.9,0.01)
@@ -163,4 +183,28 @@ def create_Number_of_sigmas(MS_slope_at_given_t_longer_1_interpolation,Measurmen
     
     return tau_fine,slope_fine,Number_of_sigmas_deviation_reshaped_1,best_solution_1
     
+def create_Number_of_sigmas_offset(offset_slope_at_given_t_longer_1_interpolation,Measurment_Of_Offset_Slope,err_Measurment_Of_Offset_Slope):
     
+    slope_fine=np.arange(1.1,2.9,0.01)
+    tau_fine=np.arange(1,200,0.1)
+    
+    Number_of_sigmas_deviation_1=[]
+    for plot_slope in tqdm(slope_fine):
+        for plot_tau in tau_fine: 
+            Number_of_sigmas_deviation_1.append(abs((offset_slope_at_given_t_longer_1_interpolation(plot_tau,plot_slope)-Measurment_Of_Offset_Slope)/err_Measurment_Of_Offset_Slope))
+            
+    Number_of_sigmas_deviation_1=np.array(Number_of_sigmas_deviation_1)
+    Number_of_sigmas_deviation_1=Number_of_sigmas_deviation_1.reshape(len(slope_fine),len(tau_fine))
+
+    Number_of_sigmas_deviation_reshaped_1=np.copy(Number_of_sigmas_deviation_1)
+    Number_of_sigmas_deviation_reshaped_1=Number_of_sigmas_deviation_reshaped_1.reshape(len(slope_fine),len(tau_fine))  
+    
+    best_solution_1=[]
+    for i in range(len(Number_of_sigmas_deviation_reshaped_1)):
+        best_solution_1.append([slope_fine[i],tau_fine[np.argmin(Number_of_sigmas_deviation_reshaped_1[i])],Number_of_sigmas_deviation_reshaped_1[i][np.argmin(Number_of_sigmas_deviation_reshaped_1[i])]])
+        
+    best_solution_1=np.array(best_solution_1)
+    best_solution_1=best_solution_1[best_solution_1[:,2]<0.1]
+    
+    return tau_fine,slope_fine,Number_of_sigmas_deviation_reshaped_1,best_solution_1
+
