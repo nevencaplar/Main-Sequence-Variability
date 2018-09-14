@@ -214,10 +214,10 @@ def find_nearest(array, value):
     idx = (np.abs(array - value)).argmin()
     return array[idx],idx
 
-def create_Number_of_R(convolving_array):
+def create_Number_of_R_interpolation(convolving_array):
     Number_of_R=[]
-    slope_without_0=slope[slope>0]
-    for plot_slope in tqdm(slope_without_0):
+    slope_1=slope[slope>1]
+    for plot_slope in tqdm(slope_1):
         for plot_tau in tau: 
             single_ACF=get_ACF(plot_tau,plot_slope)[:,1]
             sum_ACF_over_inf_response_function=np.sum(single_ACF*convolving_array[:len(single_ACF)])
@@ -229,7 +229,22 @@ def create_Number_of_R(convolving_array):
             sum_single_ACF_over_R=np.array(sum_single_ACF_over_R)
             Number_of_R.append(find_nearest(sum_single_ACF_over_R,sum_ACF_over_inf_response_function)[1])
     Number_of_R=np.array(Number_of_R)
-            
-    return slope_without_0,tau,Number_of_R
+    Number_of_R=Number_of_R.reshape(19,29)
+    Number_of_R_interpolation = interpolate.interp2d(tau,slope_1, Number_of_R, kind='linear')    
+    return Number_of_R_interpolation
+
+
+def create_Number_of_R_parameter_space(Number_of_R_interpolation):
+    
+    slope_fine=np.arange(1.1,2.9,0.01)
+    tau_fine=np.arange(1,200,0.1)
+    
+    Number_of_R_parameter_space=[]
+    for plot_slope in tqdm(slope_fine):
+        for plot_tau in tau_fine: 
+            Number_of_R_parameter_space.append(int(Number_of_R_interpolation(plot_tau,plot_slope)))
     
     
+    Number_of_R_parameter_space=np.array(Number_of_R_parameter_space)
+    
+    return slope_fine,tau_fine,Number_of_R_parameter_space
