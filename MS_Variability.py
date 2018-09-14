@@ -1,9 +1,10 @@
-#!/usr/bin/env python2
-# -*- coding: utf-8 -*-
 """
 Created on Mon Sep  3 15:44:00 2018
 
-@author: ncaplar@princeton.edu
+@author: Neven Caplar
+@contact: ncaplar@princeton.edu
+
+Project by Sandro Tacchella (Cfa) and Neven Caplar
 """
 from __future__ import division
 import numpy as np
@@ -208,3 +209,27 @@ def create_Number_of_sigmas_offset(offset_slope_at_given_t_longer_1_interpolatio
     
     return tau_fine,slope_fine,Number_of_sigmas_deviation_reshaped_1,best_solution_1
 
+def find_nearest(array, value):
+    array = np.asarray(array)
+    idx = (np.abs(array - value)).argmin()
+    return array[idx],idx
+
+def create_Number_of_R(convolving_array):
+    Number_of_R=[]
+    slope_without_0=slope[slope>0]
+    for plot_slope in tqdm(slope_without_0):
+        for plot_tau in tau: 
+            single_ACF=get_ACF(plot_tau,plot_slope)[:,1]
+            sum_ACF_over_inf_response_function=np.sum(single_ACF*convolving_array[:len(single_ACF)])
+    
+            sum_single_ACF_over_R=[]
+            for i in range(1,len(single_ACF)):
+                sum_single_ACF_over_R.append(np.sum(single_ACF[:i])/i)
+    
+            sum_single_ACF_over_R=np.array(sum_single_ACF_over_R)
+            Number_of_R.append(find_nearest(sum_single_ACF_over_R,sum_ACF_over_inf_response_function)[1])
+    Number_of_R=np.array(Number_of_R)
+            
+    return slope_without_0,tau,Number_of_R
+    
+    
