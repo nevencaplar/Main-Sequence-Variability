@@ -266,3 +266,7 @@ def create_Number_of_R_parameter_space(Number_of_R_interpolation):
     Number_of_R_parameter_space=np.array(Number_of_R_parameter_space)
     
     return slope_fine,tau_fine,Number_of_R_parameter_space
+
+def ConnectionBetweenLinearAndLogVariance(log_var):
+    x=log_var
+    return 10**(-3.42755 + 39.9722*x - 248.007*x**2 + 834.61*x**3 - 1329.93*x**4 + 807.497*x**5)
