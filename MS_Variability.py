@@ -57,12 +57,14 @@ def get_ACF(tau,slope):
     res=np.array(res)
     return res
 
-def get_scatter_MS(tau,slope,tMax=None,t_avg=None):
+def get_scatter_MS(tau,slope,tMax=None,t_avg=None,convolving_array=None):
     """!gives size of scatter as a 2d numpy array [time, scatter]
 
     @param[in] tau          Decorellation time
     @param[in] slope        high frequency slope of the PSD
-    @param[in] tmax         what is the largest time that you want to consider (see 'largest avaliable time is' above);
+    @param[in] tmax         what is the largest time that you want to consider (see 'largest avaliable time is' above) 
+                            if unsure leave empty
+    @param[in] t_avg        give result at whic time; if unspeciffied gives the full array for all avaliable times
 
 
     """
@@ -72,8 +74,24 @@ def get_scatter_MS(tau,slope,tMax=None,t_avg=None):
     ACF=get_ACF(tau,slope)
     
     res=[]
-    for t in range(1,tMax):
-        res.append([t,(1+2*np.sum(((1-np.array(range(1,t+1))/t))*ACF[:,1][:t]))**(1/2)*(1/(t**(1/2)))])
+    if convolving_array is None:   
+        for t in range(1,tMax):
+            res.append([t,(1+2*np.sum(((1-np.array(range(1,t+1))/t))*ACF[:,1][:t]))**(1/2)*(1/(t**(1/2)))])
+    else:
+        assert (np.sum(convolving_array) > 0.995) & (np.sum(convolving_array) < 1.005)
+
+        t=np.min(np.array([len(ACF),len(convolving_array)]))
+        
+        ACF_with_0=np.vstack((np.array([0,1]),ACF))
+        convolving_2d_array=np.outer(convolving_array[:t],convolving_array[:t])
+        res_int=[]
+        for i in range(t):
+            for j in range(t):
+                res_int.append(convolving_2d_array[i,j]*ACF_with_0[np.abs(i-j),1])
+                
+        res=np.sqrt(sum(res_int))
+
+        return np.array([t,res])
         
     res=np.array(res)
     if t_avg is None:
