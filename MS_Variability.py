@@ -64,7 +64,7 @@ def get_scatter_MS(tau,slope,tMax=None,t_avg=None,convolving_array=None):
     @param[in] slope        high frequency slope of the PSD
     @param[in] tmax         what is the largest time that you want to consider (see 'largest avaliable time is' above) 
                             if unsure leave empty
-    @param[in] t_avg        give result at whic time; if unspeciffied gives the full array for all avaliable times
+    @param[in] t_avg        give result at which time; if unspeciffied gives the full array for all avaliable times
 
 
     """
