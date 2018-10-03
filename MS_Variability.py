@@ -251,6 +251,36 @@ def create_Number_of_R_interpolation(convolving_array):
     Number_of_R_interpolation = interpolate.interp2d(tau,slope_1, Number_of_R, kind='linear')    
     return Number_of_R_interpolation
 
+def create_Number_of_R_interpolation_Variance(convolving_array):
+    Number_of_R=[]
+    slope_1=slope[slope>1]
+    convolving_array=convolving_array[np.cumsum(convolving_array)<0.998]
+    for plot_slope in tqdm(slope_1):
+        for plot_tau in tau:
+            ACF=get_ACF(plot_tau,plot_slope)
+
+            t=np.min(np.array([len(ACF),len(convolving_array)]))
+            convolving_2d_array=np.outer(convolving_array[:t],convolving_array[:t])   
+            ACF_with_0=np.vstack((np.array([0,1]),ACF))            
+            
+            res_int=[]
+            for i in range(t):
+                for j in range(t):
+                    res_int.append(convolving_2d_array[i,j]*ACF_with_0[np.abs(i-j),1])
+            
+            res=[]
+            for tv in range(1,t):
+                res.append([tv,(1/(tv))*(1+2*np.sum(((1-np.array(range(1,tv+1))/tv))*ACF[:,1][:tv]))])
+                
+            res=np.array(res) 
+            Number_of_R.append(list(np.abs(res[:,1]-np.sum(res_int))).index(np.min(np.abs(res[:,1]-np.sum(res_int))))+1)
+
+
+    Number_of_R=np.array(Number_of_R)
+    Number_of_R=Number_of_R.reshape(19,29)
+    Number_of_R_interpolation = interpolate.interp2d(tau,slope_1, Number_of_R, kind='linear')    
+    return Number_of_R_interpolation
+
 
 def create_Number_of_R_parameter_space(Number_of_R_interpolation):
     
