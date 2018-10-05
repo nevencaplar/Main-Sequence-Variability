@@ -76,6 +76,7 @@ def get_scatter_MS(tau,slope,tMax=None,t_avg=None,convolving_array=None):
     res=[]
     if convolving_array is None:   
         for t in range(1,tMax):
+            #print(ACF[:,1][:t])
             res.append([t,(1+2*np.sum(((1-np.array(range(1,t+1))/t))*ACF[:,1][:t]))**(1/2)*(1/(t**(1/2)))])
     else:
         assert (np.sum(convolving_array) > 0.995) & (np.sum(convolving_array) < 1.005)
@@ -98,6 +99,7 @@ def get_scatter_MS(tau,slope,tMax=None,t_avg=None,convolving_array=None):
         return res
     else:
         assert t_avg<tMax
+        print(res)
         return res[int(t_avg-1)]  
     
 def get_mean_relation(tau,slope,tMax=None):
