@@ -240,7 +240,9 @@ def create_Number_of_R_interpolation(convolving_array):
     for plot_slope in tqdm(slope_1):
         for plot_tau in tau: 
             single_ACF=get_ACF(plot_tau,plot_slope)[:,1]
-            sum_ACF_over_inf_response_function=np.sum(single_ACF*convolving_array[:len(single_ACF)])
+
+            t=np.min(np.array([len(single_ACF),len(convolving_array)]))
+            sum_ACF_over_inf_response_function=np.sum(single_ACF[:t]*convolving_array[:t])
     
             sum_single_ACF_over_R=[]
             for i in range(1,len(single_ACF)):
@@ -265,11 +267,14 @@ def create_Number_of_R_interpolation_Variance(convolving_array):
             convolving_2d_array=np.outer(convolving_array[:t],convolving_array[:t])   
             ACF_with_0=np.vstack((np.array([0,1]),ACF))            
             
+            res_int=convolving_2d_array* np.fromfunction(lambda i, j: ACF_with_0[np.abs(i-j),1], (t, t),dtype=int)
+            """
+            old code, removed on Oct12, 2018
             res_int=[]
             for i in range(t):
                 for j in range(t):
                     res_int.append(convolving_2d_array[i,j]*ACF_with_0[np.abs(i-j),1])
-            
+            """            
             res=[]
             for tv in range(1,t):
                 res.append([tv,(1/(tv))*(1+2*np.sum(((1-np.array(range(1,tv+1))/tv))*ACF[:,1][:tv]))])
