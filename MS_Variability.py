@@ -124,6 +124,30 @@ def get_mean_relation(tau,slope,tMax=None):
     res=np.array(res)
     return res
 
+    
+def get_mean_relation_convolution(Delta,tau,convolving_array):
+    """!gives ratio between mean SFR of a longer indicator and the SFR in a shorten indicator [time, ratio of two indicators ]
+        assumes nonchanging mean sequence!
+
+    @param[in] tau          Decorellation time
+    @param[in] slope        high frequency slope of the PSD
+    @param[in] tmax         what is the largest time that you want to consider (see 'largest avaliable time is' above);
+
+
+    """
+    
+    ACF=get_ACF(tau,2)
+    
+    tMax=np.min(np.array([len(ACF),len(convolving_array)]))
+    
+    #ACF=get_ACF(tau,slope)
+    ACF_with_0=np.vstack((np.array([0,1]),ACF))
+    
+
+    res=np.sum(Delta*ACF_with_0[:,1][:tMax]*convolving_array[:tMax]+np.log(10)/2*(Delta**2)*ACF_with_0[:,1][:tMax]*convolving_array[:tMax])
+
+    return res
+
 def bootstrap_resample(X, n=None):
     """ Bootstrap resample an array_like
     Parameters
