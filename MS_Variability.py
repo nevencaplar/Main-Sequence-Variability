@@ -14,7 +14,7 @@ from tqdm import tqdm
 from scipy import interpolate
 
 
-ACFData=np.loadtxt(open('./ACFTableFlatten.csv', "rb"), delimiter=",", skiprows=0)
+ACFData=np.loadtxt(open('./ACFTableLargeNov10.csv', "rb"), delimiter=",", skiprows=0)
 ACFData[:,1]=np.round(ACFData[:,1],2)
 
 
@@ -22,8 +22,10 @@ tau=np.unique(ACFData[:,0])
 slope=np.unique(ACFData[:,1])
 time=np.unique(ACFData[:,2])
 ACF=ACFData[:,3]
+
+
 print('These auto-correlation function have been computed numerically in Wolfram Mathematica (notebook also avaliable in the Github folder) for PSD=1/(1+(f/f_bend)^(slope)),where tau=1/f_bend and f is frequency.')
-print('They are tabulated as function of tau (decorrelation time), slope(high frequency slope of the PSD) and time.')
+print('They are tabulated as function of tau (invserse frequncy of the break in PSD), slope(high frequency slope of the PSD) and time.')
 print('avaliable tau (in units of \' time units (t.u.)\')are: '+str(tau))
 print('avaliable slopes are: '+str(slope))
 print('largest avaliable time is [t.u.]: '+str(max(time)))
@@ -101,9 +103,23 @@ def get_scatter_MS(tau,slope,tMax=None,t_avg=None,convolving_array=None):
         assert t_avg<tMax
         print(res)
         return res[int(t_avg-1)]  
+
+def mean_power_10(t,x0,sigma,tau_decor):
+    """! helping function that simulates averaging of the log space, assuming damped random walk 
+
+    @param[in] tau          Decorellation time
+    @param[in] slope        high frequency slope of the PSD
+    @param[in] tmax         what is the largest time that you want to consider (see 'largest avaliable time is' above);
+
+
+    """  
     
-def get_mean_relation(tau,slope,tMax=None):
-    """!gives ratio between mean SFR of a longer indicator and the SFR in a shorten indicator [time, ratio of two indicators ]
+    
+    return 10**(np.exp(-t/(2*tau_decor))*x0+sigma**2*(1-np.exp(-t/tau_decor))*np.log(10)/2)    
+    
+    
+def get_mean_relation(tau_break,Tmax=None,sigmaMS=None):
+    """!gives ratio between mean actual Delta MS and measured MS given some averaging timescale tMax
         assumes nonchanging mean sequence!
 
     @param[in] tau          Decorellation time
@@ -112,17 +128,26 @@ def get_mean_relation(tau,slope,tMax=None):
 
 
     """
-    if tMax is None:
-        tMax=int(max(time))
     
-    ACF=get_ACF(tau,slope)
+    tau_decor=tau_break/(2*np.pi*2)
     
-    res=[]
-    for t in range(1,tMax):
-        res.append([t,np.sum(ACF[:,1][:t])/(t)])
-
-    res=np.array(res)
-    return res
+    if Tmax is None:
+        Tmax=100
+        
+    if sigmaMS is None:
+        sigmaMS=0.4
+        
+    res_mean=[]
+    for x0 in np.arange(-2,2.1,0.025):
+        res=[]
+        for t in range(Tmax):
+            res.append(mean_power_10(t,x0,sigmaMS,tau_decor))
+    
+        res=np.array(res)
+        res_mean.append([x0,np.log10(np.mean(res))])
+    res_mean=np.array(res_mean)
+    
+    return res_mean
 
     
 def get_mean_relation_convolution(Delta,tau,convolving_array):
