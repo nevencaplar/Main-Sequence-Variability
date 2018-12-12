@@ -62,12 +62,12 @@ def get_ACF(tau,slope):
 def get_scatter_MS(tau,slope,tMax=None,t_avg=None,convolving_array=None):
     """!gives size of scatter as a 2d numpy array [time, scatter]
 
-    @param[in] tau          Decorellation time
-    @param[in] slope        high frequency slope of the PSD
-    @param[in] tmax         what is the largest time that you want to consider (see 'largest avaliable time is' above) 
-                            if unsure leave empty
-    @param[in] t_avg        give result at which time; if unspeciffied gives the full array for all avaliable times
-
+    @param[in] tau               decorellation time
+    @param[in] slope             high frequency slope of the PSD
+    @param[in] tmax              what is the largest time that you want to consider (see 'largest avaliable time is' above) 
+                                 if unsure leave empty
+    @param[in] t_avg             give result at which time; if unspeciffied gives the full array for all avaliable times
+    @param[in] convolving_array  if working with more realistic functions, specify convolution kernel here
 
     """
     if tMax is None:
