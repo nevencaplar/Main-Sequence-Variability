@@ -4,7 +4,7 @@ Created on Mon Sep  3 15:44:00 2018
 @author: Neven Caplar
 @contact: ncaplar@princeton.edu
 
-Project by Sandro Tacchella (Cfa) and Neven Caplar
+Project by Sandro Tacchella (CfA) and Neven Caplar (PU)
 """
 from __future__ import division
 import numpy as np
