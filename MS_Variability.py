@@ -23,12 +23,12 @@ slope=np.unique(ACFData[:,1])
 time=np.unique(ACFData[:,2])
 ACF=ACFData[:,3]
 
-
+print('Welcome to MS_variability package - you have just imported tabluted auto-correlation functions.')
 print('These auto-correlation function have been computed numerically in Wolfram Mathematica (notebook also avaliable in the Github folder) for PSD=1/(1+(f/f_bend)^(slope)),where tau=1/f_bend and f is frequency.')
 print('They are tabulated as function of tau (invserse frequncy of the break in PSD), slope(high frequency slope of the PSD) and time.')
-print('avaliable tau (in units of \' time units (t.u.)\')are: '+str(tau))
-print('avaliable slopes are: '+str(slope))
-print('largest avaliable time is [t.u.]: '+str(max(time)))
+print('Avaliable tau (in units of Myr)are: '+str(tau))
+print('Avaliable slopes are: '+str(slope))
+print('Longest avaliable time is [Myr]: '+str(max(time)))
 
 # constructing multi-index panda dataframe (series)
 mi = pd.MultiIndex.from_product([tau, slope, time], names=['tau', 'slope', 'time'])
@@ -42,9 +42,6 @@ def get_ACF(tau,slope):
 
     @param[in] tau          Decorrelation time
     @param[in] slope        high frequency slope of the PSD
-
-
-
     """
     
     #pull out a dataframe with tau = 100 time units (see all options above)
@@ -110,11 +107,8 @@ def mean_power_10(t,x0,sigma,tau_decor):
     @param[in] tau          Decorellation time
     @param[in] slope        high frequency slope of the PSD
     @param[in] tmax         what is the largest time that you want to consider (see 'largest avaliable time is' above);
-
-
     """  
-    
-    
+       
     return 10**(np.exp(-t/(2*tau_decor))*x0+sigma**2*(1-np.exp(-t/tau_decor))*np.log(10)/2)    
     
     
@@ -125,8 +119,6 @@ def get_mean_relation(tau_break,Tmax=None,sigmaMS=None):
     @param[in] tau          Decorellation time
     @param[in] slope        high frequency slope of the PSD
     @param[in] tmax         what is the largest time that you want to consider (see 'largest avaliable time is' above);
-
-
     """
     
     tau_decor=tau_break/(2*np.pi*2)
@@ -157,8 +149,6 @@ def get_mean_relation_convolution(Delta,tau,convolving_array):
     @param[in] tau          Decorellation time
     @param[in] slope        high frequency slope of the PSD
     @param[in] tmax         what is the largest time that you want to consider (see 'largest avaliable time is' above);
-
-
     """
     
     ACF=get_ACF(tau,2)
@@ -196,9 +186,6 @@ def create_MS_scatter_at_given_t_interpolation(t_longer):
     """! gives interpolation of the main sequence when measured with an indicator that last for 't_longer' time units
 
     @param[in] t_longer         time duration of the response step function          
-    
-    
-
     """
     
     convolving_array=np.ones(t_longer)/t_longer
@@ -238,14 +225,11 @@ def create_offset_slope_at_given_t_interpolation(t_longer):
 
 
 def create_Number_of_sigmas(MS_slope_at_given_t_longer_1_interpolation,Measurment_Of_Scatter_Ratio,err_Measurment_Of_Scatter_Ratio):
-    """! gives inumber of sigmas that the measurments is distance from predicted width of main sequence
+    """! gives the number of sigmas that the measurments is away from the predicted width of main sequence
 
-    @param[in] MS_slope_at_given_t_longer_1_interpolation     fine interpolation of width as a function of parameters    
-    @param[in] Measurment_Of_Scatter_Ratio     measurment of the two widths 
-    @param[in] err_Measurment_Of_Scatter_Ratio     error on measurment
-    
-    
-
+    @param[in] MS_slope_at_given_t_longer_1_interpolation        fine interpolation of width as a function of parameters    
+    @param[in] Measurment_Of_Scatter_Ratio                       measurment of the two widths 
+    @param[in] err_Measurment_Of_Scatter_Ratio                    error on measurment
     """    
     
     
