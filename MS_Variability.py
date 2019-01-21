@@ -9,7 +9,6 @@ Project by Sandro Tacchella (CfA) and Neven Caplar (PU)
 from __future__ import division
 import numpy as np
 import pandas as pd
-import io
 from tqdm import tqdm
 from scipy import interpolate
 
@@ -23,10 +22,10 @@ slope=np.unique(ACFData[:,1])
 time=np.unique(ACFData[:,2])
 ACF=ACFData[:,3]
 
-print('Welcome to MS_variability package - you have just imported tabluted auto-correlation functions.')
+print('Welcome to MS_variability package - you have just imported tabulated auto-correlation functions.')
 print('These auto-correlation function have been computed numerically in Wolfram Mathematica (notebook also avaliable in the Github folder) for PSD=1/(1+(f/f_bend)^(slope)),where tau=1/f_bend and f is frequency.')
-print('They are tabulated as function of tau (invserse frequncy of the break in PSD), slope(high frequency slope of the PSD) and time.')
-print('Avaliable tau (in units of Myr)are: '+str(tau))
+print('They are tabulated as function of tau (invserse frequncy of the break in the PSD), slope (high frequency slope of the PSD) and time.')
+print('Avaliable tau (in units of Myr) are: '+str(tau))
 print('Avaliable slopes are: '+str(slope))
 print('Longest avaliable time is [Myr]: '+str(max(time)))
 
@@ -113,7 +112,7 @@ def mean_power_10(t,x0,sigma,tau_decor):
     
     
 def get_mean_relation(tau_break,Tmax=None,sigmaMS=None):
-    """!gives ratio between mean actual Delta MS and measured MS given some averaging timescale tMax
+    """! gives ratio between mean actual Delta MS and measured MS given some averaging timescale tMax
         assumes nonchanging mean sequence!
 
     @param[in] tau          Decorellation time
@@ -143,12 +142,12 @@ def get_mean_relation(tau_break,Tmax=None,sigmaMS=None):
 
     
 def get_mean_relation_convolution(Delta,tau,convolving_array):
-    """!gives ratio between mean SFR of a longer indicator and the SFR in a shorten indicator [time, ratio of two indicators ]
+    """! gives ratio between mean SFR of a longer indicator and the SFR in a shorten indicator [time, ratio of two indicators ]
         assumes nonchanging mean sequence!
 
     @param[in] tau          Decorellation time
     @param[in] slope        high frequency slope of the PSD
-    @param[in] tmax         what is the largest time that you want to consider (see 'largest avaliable time is' above);
+    @param[in] convolving_array response function of a given indicator
     """
     
     ACF=get_ACF(tau,2)
@@ -164,16 +163,11 @@ def get_mean_relation_convolution(Delta,tau,convolving_array):
     return res
 
 def bootstrap_resample(X, n=None):
-    """ Bootstrap resample an array_like
-    Parameters
-    ----------
-    X : array_like
-      data to resample
-    n : int, optional
-      length of resampled array, equal to len(X) if n==None
-    Results
-    -------
-    returns X_resamples
+    """! Returns bootstrap resample of an array
+    taken from http://fab.cba.mit.edu/classes/864.14/students/Royall_Emily/svdmatrix.py
+    
+    @param[in] X         array to resample
+    @param[in]           length of resampled array, equal to length of input array if left at None
     """
     if n == None:
         n = len(X)
@@ -183,7 +177,7 @@ def bootstrap_resample(X, n=None):
     return X_resample
     
 def create_MS_scatter_at_given_t_interpolation(t_longer):
-    """! gives interpolation of the main sequence when measured with an indicator that last for 't_longer' time units
+    """! gives interpolation of the main sequence when measured with an indicator that last for 't_longer' Myr
 
     @param[in] t_longer         time duration of the response step function          
     """
@@ -204,25 +198,10 @@ def create_MS_scatter_at_given_t_interpolation(t_longer):
     MS_slope_at_given_t_longer_1_interpolation = interpolate.interp2d(tau, slope_1, MS_slope_at_given_t_longer_1, kind='cubic')  
     return MS_slope_at_given_t_longer_1_interpolation
 
-def create_offset_slope_at_given_t_interpolation(t_longer):
-
-    slope_1=slope[slope>1]
-    
-
-    offset_slope_at_given_t_longer=[]
-    for plot_slope in tqdm(slope_1):
-        for plot_tau in tau: 
-            if int(t_longer)==1:
-                offset_slope_at_given_t_longer.append([plot_tau,plot_slope,0])
-            else:
-                offset_slope_at_given_t_longer.append([plot_tau,plot_slope,get_mean_relation(plot_tau,plot_slope)[int(t_longer)-1][1]])
-        
-    offset_slope_at_given_t_longer_1=np.array(offset_slope_at_given_t_longer)[:,2]      
-    offset_slope_at_given_t_longer_1=offset_slope_at_given_t_longer_1.reshape(len(slope_1),len(tau))
-        
-    offset_slope_at_given_t_longer_1_interpolation = interpolate.interp2d(tau, slope_1, offset_slope_at_given_t_longer_1, kind='cubic')  
-    return offset_slope_at_given_t_longer_1_interpolation
-
+#######################################################################################################
+# Functions below were used at some earlier times 
+# I have kept them here for completness, but they are not used in the current iteration of the notebook
+#######################################################################################################
 
 def create_Number_of_sigmas(MS_slope_at_given_t_longer_1_interpolation,Measurment_Of_Scatter_Ratio,err_Measurment_Of_Scatter_Ratio):
     """! gives the number of sigmas that the measurments is away from the predicted width of main sequence
@@ -255,6 +234,28 @@ def create_Number_of_sigmas(MS_slope_at_given_t_longer_1_interpolation,Measurmen
     best_solution_1=best_solution_1[best_solution_1[:,2]<0.1]
     
     return tau_fine,slope_fine,Number_of_sigmas_deviation_reshaped_1,best_solution_1
+    
+
+def create_offset_slope_at_given_t_interpolation(t_longer):
+
+    slope_1=slope[slope>1]
+    
+
+    offset_slope_at_given_t_longer=[]
+    for plot_slope in tqdm(slope_1):
+        for plot_tau in tau: 
+            if int(t_longer)==1:
+                offset_slope_at_given_t_longer.append([plot_tau,plot_slope,0])
+            else:
+                offset_slope_at_given_t_longer.append([plot_tau,plot_slope,get_mean_relation(plot_tau,plot_slope)[int(t_longer)-1][1]])
+        
+    offset_slope_at_given_t_longer_1=np.array(offset_slope_at_given_t_longer)[:,2]      
+    offset_slope_at_given_t_longer_1=offset_slope_at_given_t_longer_1.reshape(len(slope_1),len(tau))
+        
+    offset_slope_at_given_t_longer_1_interpolation = interpolate.interp2d(tau, slope_1, offset_slope_at_given_t_longer_1, kind='cubic')  
+    return offset_slope_at_given_t_longer_1_interpolation
+
+
     
 def create_Number_of_sigmas_offset(offset_slope_at_given_t_longer_1_interpolation,Measurment_Of_Offset_Slope,err_Measurment_Of_Offset_Slope):
     
