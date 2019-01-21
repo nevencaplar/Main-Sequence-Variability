@@ -16,6 +16,6 @@ Screenshot of the notebook is below:
 ------------------------------------------------------------------------------------------
 Other interesting files are:
 
-MS_Variability.py - module with definitions for Main_Sequence_Variability.ipynb
-ACFTableLargeNov10.csv - tabulated auto-correlation functions, used in the analyticall analysis
-CreateACFTableFlatten.nb - code used to create tabulated auto-correlation functions
+-MS_Variability.py - module with definitions for Main_Sequence_Variability.ipynb
+-ACFTableLargeNov10.csv - tabulated auto-correlation functions, used in the analyticall analysis
+-CreateACFTableFlatten.nb - code used to create tabulated auto-correlation functions
