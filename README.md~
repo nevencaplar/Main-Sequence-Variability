@@ -1,5 +1,6 @@
 # Main-Sequence-Variability
 
+Collection of files and documents related to the project which aims to analyze galaxies around main sequence as a stochastic process.
 
 The main file is the Main_Sequence_Variability.ipynb notebook. It has several examples
 - overview of the autocorrelation functions and its connection with the parameters of the power spectrum density (high-frequency slope and timescale of the break)
