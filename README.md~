@@ -13,11 +13,11 @@ Dependencies are pandas, tqdm and DELCgen (https://github.com/samconnolly/DELigh
 ------------------------------------------------------------------------------------------
 
 ![Overview of the notebook](https://www.dropbox.com/s/zejyvj7xov6j771/MS_Variability.png?raw=1)
-
+------------------------------------------------------------------------------------------
 ### Other interesting files are:
 
--MS_Variability.py - module with definitions for Main_Sequence_Variability.ipynb
+- MS_Variability.py - module with definitions for Main_Sequence_Variability.ipynb
 
--ACFTableLargeNov10.csv - tabulated auto-correlation functions, used in the analyticall analysis
+- ACFTableLargeNov10.csv - tabulated auto-correlation functions, used in the analyticall analysis
 
--CreateACFTableFlatten.nb - code used to create tabulated auto-correlation functions
+- CreateACFTableFlatten.nb - code used to create tabulated auto-correlation functions
