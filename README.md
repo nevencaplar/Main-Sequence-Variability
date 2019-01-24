@@ -21,3 +21,5 @@ Dependencies are pandas, tqdm and DELCgen (https://github.com/samconnolly/DELigh
 - ACFTableLargeNov10.csv - tabulated auto-correlation functions, used in the analytical analysis
 
 - CreateACFTableFlatten.nb - code used to create tabulated auto-correlation functions
+
+### For the numerical analysis see: https://github.com/stacchella/variability_SFHs
